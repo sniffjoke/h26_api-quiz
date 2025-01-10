@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { QuizQueryRepositoryTO } from '../infrastructure/quiz.query-repository.to';
 import { QuizRepositoryTO } from '../infrastructure/quiz.repository.to';
 import { UsersService } from '../../users/application/users.service';
 import { CreateAnswerInputModel } from '../api/models/input/create-answer.input.model';
@@ -10,7 +9,6 @@ import { UpdatePublishStatusInputModel } from '../api/models/input/update-publis
 export class QuizService {
 
   constructor(
-    private readonly quizQueryRepository: QuizQueryRepositoryTO,
     private readonly quizRepository: QuizRepositoryTO,
     private readonly usersService: UsersService,
   ) {
