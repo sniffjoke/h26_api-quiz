@@ -1,8 +1,7 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GamePairEntity } from '../domain/game-pair.entity';
-import { GameStatuses } from '../api/models/input/create-pairs-status.input.model';
 import { PaginationBaseModel } from '../../../core/base/pagination.base.model';
 import { QuestionEntity } from '../domain/question.entity';
 import { QuestionViewModel, QuestionViewModelForPairs } from '../api/models/output/question.view.model';
@@ -22,6 +21,10 @@ export class QuizQueryRepositoryTO {
     @InjectRepository(AnswerEntity) private readonly answerRepository: Repository<AnswerEntity>,
   ) {
   }
+
+  //------------------------------------------------------------------------------------------//
+  //------------------------------------QUESTIONS---------------------------------------------//
+  //------------------------------------------------------------------------------------------//
 
   async getAllQuestionsWithQuery(query: any) {
     const generateQuery = await this.generateQuery(query);
@@ -65,7 +68,6 @@ export class QuizQueryRepositoryTO {
       page: query.pageNumber ? Number(query.pageNumber) : 1,
       sortBy: query.sortBy ? query.sortBy : 'createdAt',
       sortDirection: query.sortDirection ? query.sortDirection : 'desc',
-      // bodySearchTerm: '%' + bodySearchTerm + '%',
       bodySearchTerm,
       publishedStatus,
     };
@@ -97,9 +99,55 @@ export class QuizQueryRepositoryTO {
     };
   }
 
+  questionsOutputMap(questions: QuestionEntity[]): QuestionViewModelForPairs[] {
+    return questions.map(question => ({
+      id: question.id.toString(),
+      body: question.body,
+    }));
+  }
+
   //------------------------------------------------------------------------------------------//
-  //----------------------------------------Game----------------------------------------------//
+  //----------------------------------------GAME----------------------------------------------//
   //------------------------------------------------------------------------------------------//
+
+  async getAllMyGamesWithQuery(query: any, user: UserEntity) {
+    const generateQuery = await this.generateQueryForMyGames(query, user);
+    const items = this.gRepository
+      .createQueryBuilder('g')
+      .innerJoinAndSelect('g.firstPlayerProgress', 'f')
+      .innerJoinAndSelect('g.secondPlayerProgress', 's')
+      .where('f.userId = :userId', { userId: user.id })
+      .andWhere('s.userId = :userId', { userId: user.id })
+      .orderBy(`"${generateQuery.sortBy}"`, generateQuery.sortDirection.toUpperCase())
+      .skip((generateQuery.page - 1) * generateQuery.pageSize)
+      .take(generateQuery.pageSize);
+    const itemsWithQuery = await items
+      .getMany();
+    const itemsOutput = itemsWithQuery.map((item) => this.gamePairOutputMap(item));
+    const resultQuestions = new PaginationBaseModel<GamePairViewModel>(generateQuery, itemsOutput);
+    return resultQuestions;
+  }
+
+  private async generateQueryForMyGames(query: any, user: UserEntity) {
+    const totalCount = this.gRepository
+      .createQueryBuilder('g')
+      .innerJoinAndSelect('g.firstPlayerProgress', 'f')
+      .innerJoinAndSelect('g.secondPlayerProgress', 's')
+      .where('f.userId = :userId', { userId: user.id })
+      .andWhere('s.userId = :userId', { userId: user.id })
+    const totalCountWithQuery = await totalCount.getCount();
+    const pageSize = query.pageSize ? +query.pageSize : 10;
+    const pagesCount = Math.ceil(totalCountWithQuery / pageSize);
+
+    return {
+      totalCount: totalCountWithQuery,
+      pageSize,
+      pagesCount,
+      page: query.pageNumber ? Number(query.pageNumber) : 1,
+      sortBy: query.sortBy ? query.sortBy : 'createdAt',
+      sortDirection: query.sortDirection ? query.sortDirection : 'desc',
+    };
+  }
 
   async gameOutput(id: number) {
     const findedGame = await this.gRepository.findOne({
@@ -149,12 +197,9 @@ export class QuizQueryRepositoryTO {
     };
   }
 
-  questionsOutputMap(questions: QuestionEntity[]): QuestionViewModelForPairs[] {
-    return questions.map(question => ({
-      id: question.id.toString(),
-      body: question.body,
-    }));
-  }
+  //------------------------------------------------------------------------------------------//
+  //--------------------------------------ANSWERS----------------------------------------------//
+  //------------------------------------------------------------------------------------------//
 
   async answerOutput(id: string) {
     const findedAnswer = await this.answerRepository.findOne({

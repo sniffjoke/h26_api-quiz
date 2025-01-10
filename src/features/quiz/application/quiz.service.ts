@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { GamePairViewModel } from '../api/models/output/game-pair.view.model';
 import { QuizQueryRepositoryTO } from '../infrastructure/quiz.query-repository.to';
 import { QuizRepositoryTO } from '../infrastructure/quiz.repository.to';
 import { UsersService } from '../../users/application/users.service';
@@ -32,6 +31,10 @@ export class QuizService {
     const user = await this.usersService.getUserByAuthToken(bearerHeader);
     return await this.quizRepository.findOrCreateConnection(user);
   }
+
+  //------------------------------------------------------------------------------------------//
+  //----------------------------------------QUESTIONS-----------------------------------------//
+  //------------------------------------------------------------------------------------------//
 
   async sendAnswer(answerData: CreateAnswerInputModel, bearerHeader: string) {
     const user = await this.usersService.getUserByAuthToken(bearerHeader);
