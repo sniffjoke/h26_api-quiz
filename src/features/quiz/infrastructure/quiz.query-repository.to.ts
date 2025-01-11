@@ -127,7 +127,7 @@ export class QuizQueryRepositoryTO {
       .orderBy(`g.${generateQuery.sortBy}`, generateQuery.sortDirection.toUpperCase())
       .addOrderBy('g.pairCreatedDate', 'DESC')
       .addOrderBy('q.id', 'ASC')
-      .addOrderBy('answers-first.addedAT', 'ASC')
+      .addOrderBy('answers-first.addedAt', 'ASC')
       .addOrderBy('answers-second.id', 'ASC')
       .skip((generateQuery.page - 1) * generateQuery.pageSize)
       .take(generateQuery.pageSize);
