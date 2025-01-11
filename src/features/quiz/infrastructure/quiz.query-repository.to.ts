@@ -139,8 +139,10 @@ export class QuizQueryRepositoryTO {
       .createQueryBuilder('g')
       .innerJoinAndSelect('g.firstPlayerProgress', 'f')
       .innerJoinAndSelect('g.secondPlayerProgress', 's')
+      // .where('f.userId = :userId', { userId: user.id })
+      // .andWhere('s.userId = :userId', { userId: user.id })
+      // .orWhere('s.userId = :userId', { userId: user.id })
       .where('f.userId = :userId', { userId: user.id })
-      .andWhere('s.userId = :userId', { userId: user.id })
       .orWhere('s.userId = :userId', { userId: user.id })
     const totalCountWithQuery = await totalCount.getCount();
     const pageSize = query.pageSize ? +query.pageSize : 10;
