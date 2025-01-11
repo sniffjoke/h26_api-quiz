@@ -66,7 +66,7 @@ export class QuizService {
       }
     });
     const gamesCount = myGames.length;
-    const avgScores = Number((gamesCount / sumScore).toFixed(2));
+    const avgScores = Number((sumScore/gamesCount).toFixed(2));
     // console.log(myGames);
     return {
       sumScore,

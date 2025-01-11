@@ -121,7 +121,8 @@ export class QuizQueryRepositoryTO {
       .leftJoinAndSelect('s.user', 'user-second')
       .where('f.userId = :userId', { userId: user.id })
       .orWhere('s.userId = :userId', { userId: user.id })
-      // .orderBy(`"${generateQuery.sortBy}"`, generateQuery.sortDirection.toUpperCase())
+      .orderBy(`g.${generateQuery.sortBy}`, generateQuery.sortDirection.toUpperCase())
+      .addOrderBy('g.pairCreatedDate', 'DESC')
       .skip((generateQuery.page - 1) * generateQuery.pageSize)
       .take(generateQuery.pageSize);
     const itemsWithQuery = await items
