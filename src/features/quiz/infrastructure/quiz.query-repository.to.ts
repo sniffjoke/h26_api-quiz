@@ -119,6 +119,8 @@ export class QuizQueryRepositoryTO {
       .leftJoinAndSelect('g.secondPlayerProgress', 's')
       .leftJoinAndSelect('f.user', 'user-first')
       .leftJoinAndSelect('s.user', 'user-second')
+      .leftJoinAndSelect('f.answers', 'answers-first')
+      .leftJoinAndSelect('s.answers', 'answers-second')
       .where('f.userId = :userId', { userId: user.id })
       .orWhere('s.userId = :userId', { userId: user.id })
       .orderBy(`g.${generateQuery.sortBy}`, generateQuery.sortDirection.toUpperCase())
@@ -139,6 +141,7 @@ export class QuizQueryRepositoryTO {
       .innerJoinAndSelect('g.secondPlayerProgress', 's')
       .where('f.userId = :userId', { userId: user.id })
       .andWhere('s.userId = :userId', { userId: user.id })
+      .orWhere('s.userId = :userId', { userId: user.id })
     const totalCountWithQuery = await totalCount.getCount();
     const pageSize = query.pageSize ? +query.pageSize : 10;
     const pagesCount = Math.ceil(totalCountWithQuery / pageSize);
