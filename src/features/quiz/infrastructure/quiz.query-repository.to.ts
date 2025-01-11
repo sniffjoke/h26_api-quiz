@@ -101,10 +101,12 @@ export class QuizQueryRepositoryTO {
   }
 
   questionsOutputMap(questions: QuestionEntity[]): QuestionViewModelForPairs[] {
-    return questions.map(question => ({
+    const newQuestionsArray = questions.map(question => ({
       id: question.id.toString(),
       body: question.body,
     }));
+    const questionOutput = newQuestionsArray.sort((a, b) => Number(a.id) - Number(b.id));
+    return questionOutput;
   }
 
   //------------------------------------------------------------------------------------------//
@@ -126,13 +128,14 @@ export class QuizQueryRepositoryTO {
       .orWhere('s.userId = :userId', { userId: user.id })
       .orderBy(`g.${generateQuery.sortBy}`, generateQuery.sortDirection.toUpperCase())
       .addOrderBy('g.pairCreatedDate', 'DESC')
-      .addOrderBy('q.id', 'ASC')
-      .addOrderBy('answers-first.addedAt', 'ASC')
-      .addOrderBy('answers-second.id', 'ASC')
+      // .addOrderBy('q.id', 'ASC')
+      // .addOrderBy('answers-first.addedAt', 'ASC')
+      // .addOrderBy('answers-second.id', 'ASC')
       .skip((generateQuery.page - 1) * generateQuery.pageSize)
       .take(generateQuery.pageSize);
     const itemsWithQuery = await items
       .getMany();
+    console.log(itemsWithQuery.length);
     const itemsOutput = itemsWithQuery.map((item) => this.gamePairOutputMap(item));
     const resultQuestions = new PaginationBaseModel<GamePairViewModel>(generateQuery, itemsOutput);
     return resultQuestions;
@@ -178,7 +181,7 @@ export class QuizQueryRepositoryTO {
       id,
       firstPlayerProgress,
       secondPlayerProgress,
-      questions,
+      questions: questions,
       status,
       pairCreatedDate,
       startGameDate,
@@ -261,11 +264,13 @@ export class QuizQueryRepositoryTO {
   }
 
   answersOutputMap(answers: AnswerEntity[]): AnswerViewModelForPairs[] {
-    return answers.map(answer => ({
+    const newAnswersArray = answers.map(answer => ({
       questionId: answer.questionId.toString(),
       answerStatus: answer.answerStatus,
       addedAt: answer.addedAt,
     }));
+    const answersOutput = newAnswersArray.sort((a, b) => Number(a.addedAt) - Number(b.addedAt));
+    return answersOutput;
   }
 
 
