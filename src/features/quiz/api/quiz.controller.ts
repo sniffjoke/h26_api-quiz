@@ -62,7 +62,7 @@ export class QuizController {
   //   return await this.quizQueryRepository.getAllMyGamesWithQuery(query, user);
   // }
 
-  @Get('pairs/users/my-statistic')
+  @Get('users/my-statistic')
   @UseGuards(JwtAuthGuard)
   // getMyStatistic(@Req() req: Request): Promise<MyStatisticViewModel> {
   async getMyStatistic(@Req() req: Request) {
