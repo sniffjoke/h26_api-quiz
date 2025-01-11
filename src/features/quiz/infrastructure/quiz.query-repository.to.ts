@@ -115,6 +115,7 @@ export class QuizQueryRepositoryTO {
     const generateQuery = await this.generateQueryForMyGames(query, user);
     const items = this.gRepository
       .createQueryBuilder('g')
+      .leftJoinAndSelect('g.questions', 'q')
       .leftJoinAndSelect('g.firstPlayerProgress', 'f')
       .leftJoinAndSelect('g.secondPlayerProgress', 's')
       .leftJoinAndSelect('f.user', 'user-first')
@@ -143,7 +144,7 @@ export class QuizQueryRepositoryTO {
       // .andWhere('s.userId = :userId', { userId: user.id })
       // .orWhere('s.userId = :userId', { userId: user.id })
       .where('f.userId = :userId', { userId: user.id })
-      .orWhere('s.userId = :userId', { userId: user.id })
+      .orWhere('s.userId = :userId', { userId: user.id });
     const totalCountWithQuery = await totalCount.getCount();
     const pageSize = query.pageSize ? +query.pageSize : 10;
     const pagesCount = Math.ceil(totalCountWithQuery / pageSize);
@@ -217,16 +218,16 @@ export class QuizQueryRepositoryTO {
       gamesCount,
       winsCount,
       lossesCount,
-      drawsCount
-    } = statisticInfo
+      drawsCount,
+    } = statisticInfo;
     return {
       sumScore,
       avgScores,
       gamesCount,
       winsCount,
       lossesCount,
-      drawsCount
-    }
+      drawsCount,
+    };
   }
 
   //------------------------------------------------------------------------------------------//
@@ -263,7 +264,6 @@ export class QuizQueryRepositoryTO {
       addedAt: answer.addedAt,
     }));
   }
-
 
 
 }
