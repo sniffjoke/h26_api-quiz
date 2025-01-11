@@ -16,6 +16,13 @@ export class QuizController {
   ) {
   }
 
+  @Get('pairs/my')
+  @UseGuards(JwtAuthGuard)
+  async getAllMyGames(@Query() query: any, @Req() req: Request) {
+    const user = await this.usersService.getUserByAuthToken(req.headers.authorization as string);
+    return await this.quizQueryRepository.getAllMyGamesWithQuery(query, user);
+  }
+
   @Get('pairs/my-current')
   @UseGuards(JwtAuthGuard)
   async getCurrentUnfUserGame(@Req() req: Request): Promise<GamePairViewModel> {
@@ -47,12 +54,12 @@ export class QuizController {
     return this.quizQueryRepository.answerOutput(answerId);
   }
 
-  @Get('pairs/my')
-  @UseGuards(JwtAuthGuard)
-  async getAllMyGames(@Query() query: any, @Req() req: Request) {
-    const user = await this.usersService.getUserByAuthToken(req.headers.authorization as string);
-    return await this.quizQueryRepository.getAllMyGamesWithQuery(query, user);
-  }
+  // @Get('pairs/my')
+  // @UseGuards(JwtAuthGuard)
+  // async getAllMyGames(@Query() query: any, @Req() req: Request) {
+  //   const user = await this.usersService.getUserByAuthToken(req.headers.authorization as string);
+  //   return await this.quizQueryRepository.getAllMyGamesWithQuery(query, user);
+  // }
 
   @Get('pairs/users/my-statistic')
   @UseGuards(JwtAuthGuard)

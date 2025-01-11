@@ -114,11 +114,13 @@ export class QuizQueryRepositoryTO {
     const generateQuery = await this.generateQueryForMyGames(query, user);
     const items = this.gRepository
       .createQueryBuilder('g')
-      .innerJoinAndSelect('g.firstPlayerProgress', 'f')
-      .innerJoinAndSelect('g.secondPlayerProgress', 's')
+      .leftJoinAndSelect('g.firstPlayerProgress', 'f')
+      .leftJoinAndSelect('g.secondPlayerProgress', 's')
+      .leftJoinAndSelect('f.user', 'user-first')
+      .leftJoinAndSelect('s.user', 'user-second')
       .where('f.userId = :userId', { userId: user.id })
-      .andWhere('s.userId = :userId', { userId: user.id })
-      .orderBy(`"${generateQuery.sortBy}"`, generateQuery.sortDirection.toUpperCase())
+      .orWhere('s.userId = :userId', { userId: user.id })
+      // .orderBy(`"${generateQuery.sortBy}"`, generateQuery.sortDirection.toUpperCase())
       .skip((generateQuery.page - 1) * generateQuery.pageSize)
       .take(generateQuery.pageSize);
     const itemsWithQuery = await items
@@ -144,7 +146,7 @@ export class QuizQueryRepositoryTO {
       pageSize,
       pagesCount,
       page: query.pageNumber ? Number(query.pageNumber) : 1,
-      sortBy: query.sortBy ? query.sortBy : 'createdAt',
+      sortBy: query.sortBy ? query.sortBy : 'pairCreatedDate',
       sortDirection: query.sortDirection ? query.sortDirection : 'desc',
     };
   }
