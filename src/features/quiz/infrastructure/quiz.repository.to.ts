@@ -52,13 +52,12 @@ export class QuizRepositoryTO {
       if (gamePair.firstPlayerProgress.userId === user.id) {
         throw new ForbiddenException('You cant connect for your own game pair');
       }
-      // const questions = await this.questionRepository.find();
       const questions = await this.questionRepository
         .createQueryBuilder('q')
-        // .orderBy('RANDOM()')
-        // .addOrderBy('q.id', 'ASC')
+        .orderBy('q.id', 'ASC')
         .limit(5)
         .getMany();
+      console.log(questions);
       gamePair.status = GameStatuses.Active;
       gamePair.startGameDate = new Date(Date.now()).toISOString();
       gamePair.questions = questions;

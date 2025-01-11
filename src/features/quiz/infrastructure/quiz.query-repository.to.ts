@@ -124,9 +124,11 @@ export class QuizQueryRepositoryTO {
       .leftJoinAndSelect('s.answers', 'answers-second')
       .where('f.userId = :userId', { userId: user.id })
       .orWhere('s.userId = :userId', { userId: user.id })
-      // .orderBy(`g.${generateQuery.sortBy}`, generateQuery.sortDirection.toUpperCase())
-      // .addOrderBy('g.pairCreatedDate', 'DESC')
-      .orderBy('g.pairCreatedDate', 'DESC')
+      .orderBy(`g.${generateQuery.sortBy}`, generateQuery.sortDirection.toUpperCase())
+      .addOrderBy('g.pairCreatedDate', 'DESC')
+      .addOrderBy('q.id', 'ASC')
+      .addOrderBy('answers-first.addedAT', 'ASC')
+      .addOrderBy('answers-second.id', 'ASC')
       .skip((generateQuery.page - 1) * generateQuery.pageSize)
       .take(generateQuery.pageSize);
     const itemsWithQuery = await items
