@@ -16,7 +16,7 @@ export class QuizService {
   }
 
   async getCurrentUnfGame(bearerHeader: string) {
-    const user = await this.usersService.getUserByAuthToken(bearerHeader)
+    const user = await this.usersService.getUserByAuthToken(bearerHeader);
     return await this.quizRepository.getGame(user);
   }
 
@@ -28,6 +28,54 @@ export class QuizService {
   async createOrConnect(bearerHeader: string): Promise<number> {
     const user = await this.usersService.getUserByAuthToken(bearerHeader);
     return await this.quizRepository.findOrCreateConnection(user);
+  }
+
+  //------------------------------------------------------------------------------------------//
+  //--------------------------------------STATISTIC-------------------------------------------//
+  //------------------------------------------------------------------------------------------//
+
+  async getMyStatistics(bearerHeader: string) {
+    const user = await this.usersService.getUserByAuthToken(bearerHeader);
+    const myGames = await this.quizRepository.findGamesByUser(user);
+    let sumScore = 0;
+    let wins = 0;
+    let loses = 0;
+    let draws = 0;
+    myGames.map(game => {
+      if (game.firstPlayerProgress.userId === user.id) {
+        sumScore = sumScore + game.firstPlayerProgress.score;
+      } else if (game.secondPlayerProgress.userId === user.id) {
+        sumScore = sumScore + game.secondPlayerProgress.score;
+      }
+      if (game.firstPlayerProgress.score === game.secondPlayerProgress.score) {
+        draws += 1;
+      }
+      if (game.firstPlayerProgress.userId === user.id &&
+        game.firstPlayerProgress.score > game.secondPlayerProgress.score) {
+        wins += 1;
+      } else if (game.firstPlayerProgress.userId === user.id &&
+        game.firstPlayerProgress.score < game.secondPlayerProgress.score) {
+        loses += 1;
+      }
+      if (game.secondPlayerProgress.userId === user.id &&
+        game.secondPlayerProgress.score > game.firstPlayerProgress.score) {
+        wins += 1;
+      } else if (game.secondPlayerProgress.userId === user.id &&
+        game.secondPlayerProgress.score < game.firstPlayerProgress.score) {
+        loses += 1;
+      }
+    });
+    const gamesCount = myGames.length;
+    const avgScores = Number((gamesCount / sumScore).toFixed(2));
+    // console.log(myGames);
+    return {
+      sumScore,
+      avgScores,
+      gamesCount,
+      winsCount: wins,
+      lossesCount: loses,
+      drawsCount: draws,
+    };
   }
 
   //------------------------------------------------------------------------------------------//

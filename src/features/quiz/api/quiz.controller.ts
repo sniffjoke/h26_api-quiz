@@ -6,6 +6,7 @@ import { CreateAnswerInputModel } from './models/input/create-answer.input.model
 import { JwtAuthGuard } from '../../../core/guards/jwt-auth.guard';
 import { QuizQueryRepositoryTO } from '../infrastructure/quiz.query-repository.to';
 import { UsersService } from '../../users/application/users.service';
+import { MyStatisticViewModel } from './models/output/my-statistic.view.model';
 
 @Controller('pair-game-quiz')
 export class QuizController {
@@ -63,8 +64,10 @@ export class QuizController {
 
   @Get('pairs/users/my-statistic')
   @UseGuards(JwtAuthGuard)
-  getMyStatistic(@Req() req: Request): string {
-    return 'my-statistic';
+  // getMyStatistic(@Req() req: Request): Promise<MyStatisticViewModel> {
+  async getMyStatistic(@Req() req: Request) {
+    const games = await this.quizService.getMyStatistics(req.headers.authorization as string);
+    return games;
   }
 
 }

@@ -118,6 +118,24 @@ export class QuizRepositoryTO {
     return findedGame;
   }
 
+  async findGamesByUser(user: UserEntity) {
+    const findedGames = await this.gRepository.find({
+      where: [
+        { firstPlayerProgress: { userId: user.id } },
+        { secondPlayerProgress: { userId: user.id } },
+      ],
+      relations: [
+        'firstPlayerProgress.user',
+        'secondPlayerProgress.user',
+      ],
+    });
+    if (!findedGames.length) {
+      throw new NotFoundException('No games found');
+    }
+
+    return findedGames;
+  }
+
   async sendAnswer(answer: string, user: UserEntity) {
     let player: PlayerProgressEntity;
     let findedGame: GamePairEntity;

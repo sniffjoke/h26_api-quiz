@@ -10,6 +10,7 @@ import { UserEntity } from '../../users/domain/user.entity';
 import { GamePairViewModel } from '../api/models/output/game-pair.view.model';
 import { AnswerEntity } from '../domain/answer.entity';
 import { AnswerViewModel, AnswerViewModelForPairs } from '../api/models/output/answer.view.model';
+import { MyStatisticViewModel } from '../api/models/output/my-statistic.view.model';
 
 
 @Injectable()
@@ -197,6 +198,29 @@ export class QuizQueryRepositoryTO {
       startGameDate,
       finishGameDate,
     };
+  }
+
+  //------------------------------------------------------------------------------------------//
+  //--------------------------------------STATISTIC-------------------------------------------//
+  //------------------------------------------------------------------------------------------//
+
+  gameStatisticOutputMap(statisticInfo: any): MyStatisticViewModel {
+    const {
+      sumScore,
+      avgScores,
+      gamesCount,
+      winsCount,
+      lossesCount,
+      drawsCount
+    } = statisticInfo
+    return {
+      sumScore,
+      avgScores,
+      gamesCount,
+      winsCount,
+      lossesCount,
+      drawsCount
+    }
   }
 
   //------------------------------------------------------------------------------------------//
